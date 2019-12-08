@@ -1,0 +1,91 @@
+{
+	"NDM_metadata": {
+		"authority": "nz.wand.test",
+		"type": "TTPv1",
+		"name": "A sample pipeline to merge rules",
+		"version": "1.0.0",
+		"OF_protocol_version": "1.3.3",
+		"doc": ["A two table pipeline"]
+	},
+	"table_map": {
+		"ACL": 0,
+		"TCP Filtering": 1
+	},
+	"flow_tables": [{
+		"name": "ACL",
+		"doc": ["Does L2 and L3 forwarding"],
+		"flow_mod_types": [{
+			"name": "L2 fwd",
+			"match_set": [{
+				"field": "ETH_DST",
+				"match_type": "all_or_exact"
+			}, {
+				"field": "IPV4_DST",
+				"match_type": "all_or_exact"
+			}],
+			"instruction_set": {
+				"zero_or_more": [{
+					"instruction": "APPLY_ACTIONS",
+					"actions": [{
+						"zero_or_more": [{
+							"action": "OUTPUT"
+						}]
+					}]
+				}, {
+					"instruction": "GOTO_TABLE",
+					"table": "TCP Filtering"
+				}]
+			}
+		}, {
+			"name": "L333 fwd",
+			"match_set": [{
+				"field": "ETH_DST",
+				"match_type": "all_or_exact"
+			}, {
+				"field": "IPV4_DST",
+				"match_type": "mask"
+			}],
+			"instruction_set": {
+				"zero_or_more": [{
+					"instruction": "WRITE_ACTIONS",
+					"actions": [{
+						"zero_or_more": [{
+							"action": "OUTPUT"
+						}, {
+							"action": "SET_FIELD",
+							"field": "ETH_DST"
+						}, {
+							"action": "SET_FIELD",
+							"field": "ETH_SRC"
+						}]
+					}]
+				}, {
+					"instruction": "GOTO_TABLE",
+					"table": "TCP Filtering"
+				}]
+			}
+		}]
+	}, {
+		"name": "TCP Filtering",
+		"doc": ["A TCP Filtering table"],
+		"flow_mod_types": [{
+			"name": "Block TCP ports",
+			"match_set": [{
+				"field": "TCP_SRC",
+				"match_type": "all_or_exact"
+			}, {
+				"field": "TCP_DST",
+				"match_type": "all_or_exact"
+			}],
+			"instruction_set": {
+				"exactly_one": [{
+					"instruction": "CLEAR_ACTIONS"
+				}]
+			}
+		}, {
+			"name": "Default process",
+			"match_set": [],
+			"instruction_set": []
+		}]
+	}]
+}

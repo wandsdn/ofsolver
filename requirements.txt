@@ -1,0 +1,10 @@
+git+git://github.com/wandsdn/ofequivalence#egg=ofequivalence
+git+git://github.com/wandsdn/ttp-tools#egg=ttp-tools
+tqdm
+parameterized
+bidict
+pyzmq
+ryu
+six
+deap
+satispy>=1.1b1

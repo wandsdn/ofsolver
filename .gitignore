@@ -1,0 +1,13 @@
+*.py[cod]
+*.swp
+*.so
+__pycache__/
+
+build/
+*.egg-info/
+.eggs/
+.coverage
+htmlcov/
+
+ofsolver/minisat-zmq
+ofsolver/muser2*

@@ -1,0 +1,70 @@
+{
+  "NDM_metadata": {
+    "authority": "nz.wand.test",
+    "type": "TTPv1",
+    "name": "A single table switch",
+    "version": "1.0.0",
+    "OF_protocol_version": "1.3.3",
+    "doc": ["A simple single table switch."]
+  },
+  "table_map": [
+    {"name": "ACL",  "num": 0}
+  ],
+  "flow_tables": [
+    {
+      "name": "ACL",
+      "doc": ["The only table is an ACL"],
+      "flow_mod_types": [
+        {
+          "name": "Whatever",
+          "match_set": [
+            {"field": "IN_PORT", "match_type": "all_or_exact"},
+            {"field": "ETH_TYPE", "match_type": "all_or_exact"},
+            {"field": "ETH_DST",  "match_type": "mask"},
+            {"field": "ETH_SRC",  "match_type": "all_or_exact"},
+            {"field": "TCP_DST",  "match_type": "all_or_exact"},
+            {"field": "TCP_SRC",  "match_type": "all_or_exact"},
+            {"field": "IPV4_SRC",  "match_type": "all_or_exact"},
+            {"field": "IPV4_DST",  "match_type": "mask"},
+            {"field": "IPV6_SRC",  "match_type": "all_or_exact"},
+            {"field": "IPV6_DST",  "match_type": "all_or_exact"},
+            {"field": "VLAN_VID",  "match_type": "all_or_exact"}
+          ],
+          "instruction_set": { "exactly_one":
+            [
+              {"instruction": "APPLY_ACTIONS",
+                "actions": [
+                  {"zero_or_more": [
+                    {"action": "PUSH_VLAN"},
+                    {"action": "POP_VLAN"},
+		    {"action": "SET_FIELD", "field": "VLAN_VID"},
+		    {"action": "SET_FIELD", "field": "ETH_SRC"},
+		    {"action": "SET_FIELD", "field": "ETH_DST"},
+		    {"action": "GROUP", "group_id": "<outputs>"}
+                  ]}
+                ]
+              },
+              {"instruction": "CLEAR_ACTIONS"}
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "group_entry_types": [
+    {
+      "name": "outputs",
+      "group_type": "ALL",
+      "bucket_types": [
+	{
+          "name": "OutputBucket",
+          "action_set": [
+            {
+              "action": "OUTPUT"
+            }
+          ]
+	}
+      ]
+    }
+  ]
+}

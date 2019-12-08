@@ -1,0 +1,77 @@
+{
+	"NDM_metadata": {
+		"authority": "nz.wand.test",
+		"type": "TTPv1",
+		"name": "A sample pipeline with a drop then forwarding table",
+		"version": "1.0.0",
+		"OF_protocol_version": "1.3.3",
+		"doc": ["A two table pipeline"]
+	},
+	"table_map": {
+		"TCP Filtering": 0,
+		"Forwarding": 1
+	},
+	"flow_tables": [{
+		"name": "TCP Filtering",
+		"doc": ["A TCP Filtering table"],
+		"flow_mod_types": [{
+			"name": "Block TCP ports",
+			"match_set": [{
+				"field": "TCP_DST",
+				"match_type": "all_or_exact"
+			}],
+			"instruction_set": {
+				"zero_or_one": [{
+					"instruction": "CLEAR_ACTIONS"
+				}]
+			}
+		}, {
+			"name": "Default process",
+			"match_set": [],
+			"instruction_set": [{
+				"instruction": "GOTO_TABLE",
+				"table": "Forwarding"
+			}]
+		}]
+	}, {
+		"name": "Forwarding",
+		"doc": ["Does simple L3 forwarding"],
+		"flow_mod_types": [{
+			"name": "Apply L3 FWD",
+			"match_set": [{
+				"field": "IPV4_DST",
+				"match_type": "all_or_exact"
+			}],
+			"instruction_set": {
+				"zero_or_more": [{
+					"instruction": "APPLY_ACTIONS",
+					"actions": [{
+						"zero_or_more": [{
+							"action": "OUTPUT"
+						}]
+					}]
+				}]
+			}
+		}, {
+			"name": "Write L3 FWD",
+			"match_set": [{
+				"field": "IPV4_DST",
+				"match_type": "all_or_exact"
+			}],
+			"instruction_set": {
+				"zero_or_more": [{
+					"instruction": "WRITE_ACTIONS",
+					"actions": [{
+						"zero_or_more": [{
+							"action": "OUTPUT"
+						}]
+					}]
+				}]
+			}
+		}, {
+			"name": "Default process",
+			"match_set": [],
+			"instruction_set": []
+		}]
+	}]
+}
