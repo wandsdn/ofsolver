@@ -3,6 +3,7 @@
 Installs the ofsolver tool and library
 """
 
+import sys
 import os
 from os import path
 import stat
@@ -13,7 +14,6 @@ try:
 except ImportError:
     from urllib.request import urlretrieve
 import distutils.cmd
-import setuptools.command.install
 from setuptools import setup
 
 LIB_NAME = "ofsolver"
@@ -87,23 +87,17 @@ class DownloadCommand(distutils.cmd.Command):
         if not self.no_muser2:
             download_muser2()
 
-class WarnInstall(setuptools.command.install.install):
-
-    def run(self):
-        warn_missing()
-        setuptools.command.install.install.run(self)
-
-
-def warn_missing():
+if "download" not in sys.argv:
     if not have_minisatzmq():
-        print("Note: minisat-zmq not found locally, use ./setup.py download\n"
-              "This can be ignored if you have installed minisat-zmq to system path\n"
-              "See https://github.com/wandsdn/minisat-zmq for details.\n")
-
+        print(
+            "Note: minisat-zmq not found locally, use ./setup.py download\n"
+            "This can be ignored if you have installed minisat-zmq to system path\n"
+            "See https://github.com/wandsdn/minisat-zmq for details.\n")
     if not have_muser2():
-        print("Note: muser2 not found locally, use ./setup.py download.\n"
-              "This can be ignored if you have installed muser2 to system path.\n"
-              "Without muser2 ofsolver --print-failure will not work.\n")
+        print(
+            "Note: muser2 not found locally, use ./setup.py download.\n"
+            "This can be ignored if you have installed muser2 to system path.\n"
+            "Without muser2 ofsolver --print-failure will not work.\n")
 
 setup(
     name='ofsolver',
@@ -114,10 +108,9 @@ setup(
     author_email='rsanger@wand.net.nz',
     url='https://github.com/wandsdn/ofsolver',
     license=LICENSE,
-    packages=[LIB_NAME],
+    packages=[LIB_NAME, LIB_NAME + ".util"],
     include_package_data=True,
-    cmdclass={"download": DownloadCommand,
-              "install": WarnInstall},
+    cmdclass={"download": DownloadCommand},
     install_requires=[
         "ofequivalence",
         "ttp-tools",
