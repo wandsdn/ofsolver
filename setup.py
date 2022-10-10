@@ -54,7 +54,26 @@ def download_muser2():
         print("Downloading muser2")
         urlretrieve(MUSER2_URL, MUSER2_TAR)
         with tarfile.open(MUSER2_TAR, 'r:gz') as tar:
-            tar.extractall(path=LIB_NAME)
+            def is_within_directory(directory, target):
+                
+                abs_directory = os.path.abspath(directory)
+                abs_target = os.path.abspath(target)
+            
+                prefix = os.path.commonprefix([abs_directory, abs_target])
+                
+                return prefix == abs_directory
+            
+            def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+            
+                for member in tar.getmembers():
+                    member_path = os.path.join(path, member.name)
+                    if not is_within_directory(path, member_path):
+                        raise Exception("Attempted Path Traversal in Tar File")
+            
+                tar.extractall(path, members, numeric_owner=numeric_owner) 
+                
+            
+            safe_extract(tar, path=LIB_NAME)
     else:
         print("Found existing copy of muser2")
 
